@@ -1,0 +1,6 @@
+model_checkpoint_path: "Autoencoder.model-391200"
+all_model_checkpoint_paths: "Autoencoder.model-390000"
+all_model_checkpoint_paths: "Autoencoder.model-390300"
+all_model_checkpoint_paths: "Autoencoder.model-390600"
+all_model_checkpoint_paths: "Autoencoder.model-390900"
+all_model_checkpoint_paths: "Autoencoder.model-391200"

@@ -1,0 +1,6 @@
+model_checkpoint_path: "Autoencoder.model-20100"
+all_model_checkpoint_paths: "Autoencoder.model-18900"
+all_model_checkpoint_paths: "Autoencoder.model-19200"
+all_model_checkpoint_paths: "Autoencoder.model-19500"
+all_model_checkpoint_paths: "Autoencoder.model-19800"
+all_model_checkpoint_paths: "Autoencoder.model-20100"

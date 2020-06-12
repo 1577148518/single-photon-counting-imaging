@@ -1,0 +1,6 @@
+model_checkpoint_path: "Autoencoder.model-28500"
+all_model_checkpoint_paths: "Autoencoder.model-27300"
+all_model_checkpoint_paths: "Autoencoder.model-27600"
+all_model_checkpoint_paths: "Autoencoder.model-27900"
+all_model_checkpoint_paths: "Autoencoder.model-28200"
+all_model_checkpoint_paths: "Autoencoder.model-28500"

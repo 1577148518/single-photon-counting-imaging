@@ -1,0 +1,6 @@
+model_checkpoint_path: "Autoencoder.model-62400"
+all_model_checkpoint_paths: "Autoencoder.model-61200"
+all_model_checkpoint_paths: "Autoencoder.model-61500"
+all_model_checkpoint_paths: "Autoencoder.model-61800"
+all_model_checkpoint_paths: "Autoencoder.model-62100"
+all_model_checkpoint_paths: "Autoencoder.model-62400"

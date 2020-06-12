@@ -1,0 +1,68 @@
+# -*- coding=utf-8 -*-
+import tensorflow as tf
+import numpy as np
+
+FLAGS = tf.app.flags.FLAGS
+
+filters = [1, 16, 4, 1]
+
+def get_weight(shape,regularizer):
+	w = tf.Variable(tf.random_normal(shape, stddev=1e-3))
+	if regularizer!= None: tf.add_to_collection('losses',tf.contrib.layers.l2_regularizer(regularizer)(w))
+	return w
+
+def get_bias(shape):
+	b = tf.Variable(tf.zeros(shape))
+	return b
+
+def matmul(x,w,b):
+	return tf.nn.relu(tf.matmul(x,w) + b)
+
+def conv2d(x,w,stride):
+	return tf.nn.conv2d(x,w,strides=[1,stride,stride,1],padding='SAME')
+
+
+@tf.RegisterGradient("QuantizeGrad")
+def quantize_grad(op, grad):
+	return tf.clip_by_value(tf.identity(grad), -1, 1)
+        
+def quantize(x):
+	with tf.get_default_graph().gradient_override_map({"Sign": "QuantizeGrad"}):
+		x = tf.sign(x)
+		return x
+
+def res_conv(x,in_kernel,out_kernel):
+	conv_w = get_weight([5,5,in_kernel,out_kernel],FLAGS.REGULARIZER)
+	conv_b = get_bias([out_kernel])
+	conv = tf.nn.conv2d(x,conv_w,strides=[1,1,1,1], padding='SAME')
+	relu = tf.nn.relu(tf.nn.bias_add(conv,conv_b))
+	return relu
+	
+def residual(x):
+	orig_x = x
+	
+	x = res_conv(x,filters[0],filters[1])
+	x = res_conv(x,filters[1],filters[2])
+	x = res_conv(x,filters[2],filters[3])
+	
+	x += orig_x
+	return x
+    
+def forward(x,regularizer):
+	conv1_w = get_weight([FLAGS.conv_core,FLAGS.conv_core,1,FLAGS.sample_times],FLAGS.REGULARIZER)
+	conv1 = conv2d(x,conv1_w,FLAGS.conv_core)
+	print("conv1:",conv1)
+	
+	conv2_w = get_weight([4,4,FLAGS.sample_times,int(FLAGS.sample_times*16)],FLAGS.REGULARIZER)
+	conv2_b = get_bias([int(FLAGS.sample_times*16)])
+	conv2 = tf.nn.relu(tf.nn.conv2d(conv1,conv2_w,strides=[1,1,1,1], padding='VALID')+conv2_b)
+	print("conv2:",conv2)
+	
+	recov_in = tf.reshape(conv2,[64,32])     ###################### 需要特定修改
+	recov_conv1_w = get_weight([16,8,1,FLAGS.sample_times],FLAGS.REGULARIZER)
+	recov_conv1_b = get_bias([FLAGS.sample_times])
+	recov_conv1 = tf.nn.relu(tf.nn.conv2d(recov_in,recov_conv1_w,strides=[1,16,8,1], padding='VALID')+recov_conv1_b)
+	print("recov_conv1:",recov_conv1)
+	
+	recov_out = tf.reshape(recov_conv1,[-1,FLAGS.image_size,FLAGS.image_size,1])
+	return recov_out
